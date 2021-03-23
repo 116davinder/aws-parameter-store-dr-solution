@@ -1,6 +1,8 @@
 #! /bin/python3
+# -*- coding: utf-8 -*-
 
-import os
+# Copyright: (c) 2021, Davinder Pal (@116davinder) <dpsangwal@gmail.com>
+
 import boto3
 import logging
 from common import common
@@ -9,6 +11,7 @@ from botocore.config import Config
 from botocore.exceptions import ClientError
 import json
 from datetime import date
+import tempfile
 
 
 class SSMBackup:
@@ -25,7 +28,7 @@ class SSMBackup:
         self.ssm_path_prefix = ssm_path_prefix
         logging.info(f"SSM Parameter Path: {ssm_path_prefix} and its sub paths")
 
-        self.temp_file = "/tmp/ssm.json"
+        self.temp_file = tempfile.NamedTemporaryFile(prefix="ssm_backup_", suffix=".json")
         self.backup_file = self.s3_bucket_prefix + date.today().strftime("%y-%m-%d") + ".json"
 
     def _get_ssm_values(self):
@@ -49,14 +52,14 @@ class SSMBackup:
                 for path in page_iterator:
                     _results += path['Parameters']
             else:
-                logging.error("paginator creation failed")
+                logging.error("boto paginator creation failed")
                 sys.exit(1)
 
         except ClientError as e:
             logging.error(f"unable to fetch ssm values: {e}")
             sys.exit(1)
 
-        with open(self.temp_file, "w") as f:
+        with open(self.temp_file.name, "w") as f:
             for item in _results:
                 _dict = {
                     "Name": item['Name'],
@@ -66,16 +69,15 @@ class SSMBackup:
                 }
                 f.write(json.dumps(_dict))
                 f.write("\n")
+                logging.info(f"taking backup of key-pair: {item['Name']}")
 
-    def upload_s3(self):
-
+    def backup(self):
         self._get_ssm_values()
-
         try:
             s3_client = boto3.client('s3')
-            s3_client.upload_file(self.temp_file,self.s3_bucket,self.backup_file)
-            logging.info(f"upload successful at s3://{self.s3_bucket}/{self.backup_file}")
-            os.remove(self.temp_file)
+            s3_client.upload_file(self.temp_file.name, self.s3_bucket, self.backup_file)
+            logging.info(f"backup upload successful at s3://{self.s3_bucket}/{self.backup_file}")
+            self.temp_file.close()
             logging.info("cleaned temp files.")
         except ClientError as e:
             logging.error(f"{self.backup_file} upload failed error {e}")
@@ -87,4 +89,4 @@ if __name__ == "__main__":
         logging.error("Usage: python3 backup.py 'ssm-path' 'aws-region' 's3-bucket' 's3-bucket-prefix'")
     else:
         backup = SSMBackup(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-        backup.upload_s3()
+        backup.backup()

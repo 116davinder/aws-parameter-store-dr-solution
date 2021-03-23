@@ -1,4 +1,7 @@
 #! /bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright: (c) 2021, Davinder Pal (@116davinder) <dpsangwal@gmail.com>
 
 import boto3
 import logging
@@ -7,6 +10,7 @@ import sys
 from botocore.config import Config
 from botocore.exceptions import ClientError
 import json
+import tempfile
 
 
 class SSMRestore:
@@ -21,46 +25,30 @@ class SSMRestore:
         self.s3_bucket = bucket
         self.s3_bucket_prefix = bucket_prefix
         self.ssm_path_prefix = ssm_path_prefix
-        self.temp_file = "/tmp/ssm.json"
+        self.temp_file = tempfile.NamedTemporaryFile(prefix="ssm_restore_", suffix=".json")
 
     def _write_to_ssm(self):
-        _results = []
-
         try:
             ssm_client = boto3.client('ssm', config=self.ssm_client_config)
+
+            with open(self.temp_file.name, "r") as f:
+                for item in f.readlines():
+                    item = json.loads(item)
+
+                    logging.info(f"restoring ssm key-pair at: {self.ssm_path_prefix + item['Name']}")
+                    ssm_client.put_parameter(
+                        Name=self.ssm_path_prefix + item['Name'],
+                        Description='Restored by Automation',
+                        Value=item['Value'],
+                        Type=item['Type'],
+                        Overwrite=True,
+                        Tier='Intelligent-Tiering',
+                        DataType=item['DataType']
+                    )
+
         except ClientError as e:
             logging.error(e)
             sys.exit(1)
-
-        with open(self.temp_file, "r") as f:
-            for item in f.readlines():
-                item = json.loads(item)
-
-                _dict = {
-                    "Name": item['Name'],
-                    "Type": item['Type'],
-                    "Value": item['Value'],
-                    "DataType": item['DataType']
-                }
-
-                response = ssm_client.put_parameter(
-                    Name='string',
-                    Description='string',
-                    Value='string',
-                    Type='String'|'StringList'|'SecureString',
-                    KeyId='string',
-                    Overwrite=True|False,
-                    AllowedPattern='string',
-                    Tags=[
-                        {
-                            'Key': 'string',
-                            'Value': 'string'
-                        },
-                    ],
-                    Tier='Standard'|'Advanced'|'Intelligent-Tiering',
-                    Policies='string',
-                    DataType='string'
-                )
 
     def _s3_download(self):
         _list = []
@@ -75,7 +63,8 @@ class SSMRestore:
 
             _list.sort()
             if len(_list) > 0:
-                s3_client.download_file(self.s3_bucket, _list[-1], self.temp_file)
+                logging.info(f"Selected Backup File: {_list[-1]}")
+                s3_client.download_file(self.s3_bucket, _list[-1], self.temp_file.name)
             else:
                 logging.error(f"no files are found under s3://{self.s3_bucket}/{self.s3_bucket_prefix}")
                 sys.exit(1)
@@ -86,12 +75,14 @@ class SSMRestore:
     def restore(self):
         self._s3_download()
         self._write_to_ssm()
+        self.temp_file.close()
+        logging.info(f"cleaned up temp files")
 
 
 if __name__ == "__main__":
     common.setLoggingFormat()
     if len(sys.argv) != 5:
-        logging.error("Usage: restore.py 'ssm-path' 'aws-region' 's3-bucket' 's3-bucket-prefix'")
+        logging.error("Usage: python3 restore.py 'ssm-path' 'aws-region' 's3-bucket' 's3-bucket-prefix'")
     else:
         restore = SSMRestore(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
         restore.restore()
