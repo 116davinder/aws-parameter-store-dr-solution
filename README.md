@@ -12,7 +12,7 @@ will be stored only.
 
 ## Backup Solution
 It will take backup of given SSM Path and its sub-path into given s3 bucket.
-It will also create a temporary file to store all key-value pairs, example `/tmp/2021-03-22.json`
+It will also create a temporary file to store all key-value pairs, example `/tmp/ssm_backup_xxxx.json`
 and Once upload to S3 is complete it will be removed.
 
 **Usage**
@@ -39,7 +39,7 @@ python3 backup.py '/Test' 'us-east-1' 'test-davinder-s3' 'SSM/'
 It will take a backup file from S3 and restore it of given SSM Path Prefix.
 It will download the latest backup file from S3 Bucket with Given S3 Prefix location
 and ends with `.json`.
-It will also create a temporary file to store all key-value pairs, example `/tmp/ssm.json`
+It will also create a temporary file to store all key-value pairs, example `/tmp/ssm_restore_xxxx.json`
 and Once restored to SSM is complete it will be removed.
 
 **Usage**
