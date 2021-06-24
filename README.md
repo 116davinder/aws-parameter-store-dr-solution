@@ -11,7 +11,7 @@ will be stored only.
 6. This Application won't take backup of SSM Parameter `description` and `tags`  currently.
 
 ## Backup Solution
-* It will take backup of given SSM Paths not there sub/child paths.
+* It will take backup of given comma separated SSM Paths only not there sub/child paths.
 * It will also create a temporary file to store all key-value pairs, example `/tmp/ssm_backup_xxxx.json`
 and Once upload to S3 is complete it will be auto cleaned up.
 
@@ -78,7 +78,7 @@ python3 restore.py '/DAV' 'eu-central-1' 'test-davinder-s3' 'SSM/'
 python3 restore.py '' 'eu-central-1' 'test-davinder-s3' 'SSM/'
 {"@timestamp": "2021-06-24 11:03:10,018","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
 {"@timestamp": "2021-06-24 11:03:11,269","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-24.json"}
-{"@timestamp": "2021-06-24 11:19:15,791","level": "INFO","thread": "MainThread","name": "root","message": "restoring ssm key-pair /DAV/Test/ANSIBLE_VAULT_PASSWORD at /Test/ANSIBLE_VAULT_PASSWORD"}
-{"@timestamp": "2021-06-24 11:19:16,729","level": "INFO","thread": "MainThread","name": "root","message": "restoring ssm key-pair /DAV/Test1/ANSIBLE_VAULT_PASSWORD at /Test1/ANSIBLE_VAULT_PASSWORD"}
+{"@timestamp": "2021-06-24 11:19:15,791","level": "INFO","thread": "MainThread","name": "root","message": "restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /DAV/Test/ANSIBLE_VAULT_PASSWORD"}
+{"@timestamp": "2021-06-24 11:19:16,729","level": "INFO","thread": "MainThread","name": "root","message": "restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /DAV/Test1/ANSIBLE_VAULT_PASSWORD"}
 {"@timestamp": "2021-06-24 11:19:16,974","level": "INFO","thread": "MainThread","name": "root","message": "cleaned up temp files"}
 ```
