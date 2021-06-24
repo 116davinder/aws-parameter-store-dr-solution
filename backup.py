@@ -30,12 +30,7 @@ class SSMBackup:
         self.temp_file = tempfile.NamedTemporaryFile(
             prefix="ssm_backup_", suffix=".json"
         )
-        self.backup_file = (
-            self.s3_bucket_prefix
-            + "SSM_BACKUP_"
-            + date.today().strftime("%Y-%m-%d")
-            + ".json"
-        )
+        self.backup_file = self.s3_bucket_prefix + "SSM_BACKUP_" + date.today().strftime("%Y-%m-%d") + ".json"
 
     def _get_ssm_values(self):
         _results = []
