@@ -13,7 +13,7 @@ will be stored only.
 ## Backup Solution
 * It will take backup of given comma separated SSM Paths only not there sub/child paths.
 * It will also create a temporary file to store all key-value pairs, example `/tmp/ssm_backup_xxxx.json`
-and Once upload to S3 is complete it will be auto cleaned up.
+and Once upload to S3 is complete it will be auto cleaned.
 
 **Usage**
 ```bash
@@ -38,47 +38,90 @@ python3 backup.py '/Test/ANSIBLE_VAULT_PASSWORD,/Test1/ANSIBLE_VAULT_PASSWORD' '
 ```
 
 ## Restore Solution
-* It will take last backup file from S3 and restore it of given SSM Path Prefix.
-* It will download the latest backup file from S3 Bucket with Given S3 Prefix location
-and assumes backup files starts with `SSM_BACKUP_` and ends with `.json`.
-* It will also create a temporary file to store all key-value pairs, example `/tmp/ssm_restore_xxxx.json`
-and Once restored to SSM is complete it will be removed.
+* It will creates a temporary file to store all key-value pairs, example `/tmp/ssm_restore_xxxx.json`
+and Once restored to SSM is complete it will be cleaned.
+* Restore Modes: `auto` / `manual`
+
+**Auto**
+
+It will download last backup file that starts with `SSM_BACKUP_` and ends with `.json` from given S3 bucket with given S3 prefix location then it will restore all the SSM key-pairs from selected backup on given `ssm-restore-path`.
+
+**Manual**
+
+It will fetch all of backup files that starts with `SSM_BACKUP_` and ends with `.json` from given S3 Bucket with given S3 prefix location and will ask user to select backup with option.
+
+It will ask user to select which key-pair to restore from selected backup on given `ssm-restore-path`
 
 ### Note*
-If you want to restore on same path then `ssm-restore-path` should be empty.
+* If you want to restore on same path then `ssm-restore-path` should be empty like `''`.
+* if backup file is empty then restore will fail with warning message `Nothing has found in selected backup file`.
 
 **Usage**
 ```bash
-python3 restore.py 'ssm-restore-path' 'ssm-aws-region' 's3-bucket' 's3-bucket-prefix'
+python3 restore.py 'ssm-restore-path' 'ssm-aws-region' 's3-bucket' 's3-bucket-prefix' 'restore-mode'
 ```
 
 ### Examples
-**Example 1**
+**Auto Mode Example 1**
 ```bash
-python3 restore.py '' 'eu-central-1' 'test-davinder-s3' 'SSM/'
+python3 restore.py '' 'eu-west-2' 'test-davinder-s3' 'SSM/' 'auto'
+{"@timestamp": "2021-06-26 16:00:13,051","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
+{"@timestamp": "2021-06-26 16:00:14,186","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
+{"@timestamp": "2021-06-26 16:00:14,186","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
+**************************************************
+Restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /Test/ANSIBLE_VAULT_PASSWORD in eu-west-2
+**************************************************
+Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2
+```
+**Auto Mode Example 2**
+```bash
+python3 restore.py '/AUTO' 'eu-west-2' 'test-davinder-s3' 'SSM/' 'auto'
+{"@timestamp": "2021-06-26 16:00:13,051","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
+{"@timestamp": "2021-06-26 16:00:14,186","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
+{"@timestamp": "2021-06-26 16:00:14,186","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
+**************************************************
+Restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /AUTO/Test/ANSIBLE_VAULT_PASSWORD in eu-west-2
+**************************************************
+Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /AUTO/Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2
 ```
 
-**Output 1**
+**Manual Mode Example 1**
 ```bash
-python3 restore.py '' 'eu-central-1' 'test-davinder-s3' 'SSM/'
-{"@timestamp": "2021-06-24 11:03:10,018","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
-{"@timestamp": "2021-06-24 11:03:11,269","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-24.json"}
-{"@timestamp": "2021-06-24 11:19:15,791","level": "INFO","thread": "MainThread","name": "root","message": "restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /Test/ANSIBLE_VAULT_PASSWORD"}
-{"@timestamp": "2021-06-24 11:19:16,729","level": "INFO","thread": "MainThread","name": "root","message": "restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /Test1/ANSIBLE_VAULT_PASSWORD"}
-{"@timestamp": "2021-06-24 11:19:16,974","level": "INFO","thread": "MainThread","name": "root","message": "cleaned up temp files"}
+python3 restore.py '/MANUAL' 'eu-central-1' 'test-davinder-s3' 'SSM/' 'manual'
+{"@timestamp": "2021-06-26 16:00:34,329","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
+**************************************************
+Manual Restore Mode is ON
+**************************************************
+Please select:
+1) SSM/SSM_BACKUP_2021-06-23.json
+2) SSM/SSM_BACKUP_2021-06-24.json
+3) SSM/SSM_BACKUP_2021-06-25.json
+4) SSM/SSM_BACKUP_2021-06-26.json
+Enter number: 3
+{"@timestamp": "2021-06-26 16:00:42,408","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-25.json"}
+{"@timestamp": "2021-06-26 16:00:44,055","level": "WARNING","thread": "MainThread","name": "root","message": "Nothing has found in selected backup file"}
 ```
 
-**Example 2**
+**Manual Mode Example 2**
 ```bash
-python3 restore.py '/DAV' 'eu-central-1' 'test-davinder-s3' 'SSM/'
-```
-
-**Output 2**
-```bash
-python3 restore.py '' 'eu-central-1' 'test-davinder-s3' 'SSM/'
-{"@timestamp": "2021-06-24 11:03:10,018","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
-{"@timestamp": "2021-06-24 11:03:11,269","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-24.json"}
-{"@timestamp": "2021-06-24 11:19:15,791","level": "INFO","thread": "MainThread","name": "root","message": "restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /DAV/Test/ANSIBLE_VAULT_PASSWORD"}
-{"@timestamp": "2021-06-24 11:19:16,729","level": "INFO","thread": "MainThread","name": "root","message": "restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /DAV/Test1/ANSIBLE_VAULT_PASSWORD"}
-{"@timestamp": "2021-06-24 11:19:16,974","level": "INFO","thread": "MainThread","name": "root","message": "cleaned up temp files"}
+python3 restore.py '/MANUAL' 'eu-central-1' 'test-davinder-s3' 'SSM/' 'manual'
+{"@timestamp": "2021-06-26 16:00:46,759","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
+**************************************************
+Manual Restore Mode is ON
+**************************************************
+Please select:
+1) SSM/SSM_BACKUP_2021-06-23.json
+2) SSM/SSM_BACKUP_2021-06-24.json
+3) SSM/SSM_BACKUP_2021-06-25.json
+4) SSM/SSM_BACKUP_2021-06-26.json
+Enter number: 4
+{"@timestamp": "2021-06-26 16:00:50,248","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
+**************************************************
+Restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /MANUAL/Test/ANSIBLE_VAULT_PASSWORD in eu-west-2
+Do you want to restore above mentioned key-pair?: yes/no
+no
+**************************************************
+Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /MANUAL/Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2
+Do you want to restore above mentioned key-pair?: yes/no
+yes
 ```
