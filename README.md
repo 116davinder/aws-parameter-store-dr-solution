@@ -65,24 +65,20 @@ python3 restore.py 'ssm-restore-path' 'ssm-aws-region' 's3-bucket' 's3-bucket-pr
 **Auto Mode Example 1**
 ```bash
 python3 restore.py '' 'eu-west-2' 'test-davinder-s3' 'SSM/' 'auto'
-{"@timestamp": "2021-06-26 16:00:13,051","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
-{"@timestamp": "2021-06-26 16:00:14,186","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
-{"@timestamp": "2021-06-26 16:00:14,186","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
-**************************************************
-Restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /Test/ANSIBLE_VAULT_PASSWORD in eu-west-2
-**************************************************
-Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2
+{"@timestamp": "2021-06-26 16:55:00,004","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
+{"@timestamp": "2021-06-26 16:55:01,276","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
+{"@timestamp": "2021-06-26 16:55:01,277","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
+{"@timestamp": "2021-06-26 16:55:01,890","level": "INFO","thread": "MainThread","name": "root","message": "Restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /Test/ANSIBLE_VAULT_PASSWORD in eu-west-2"}
+{"@timestamp": "2021-06-26 16:55:02,926","level": "INFO","thread": "MainThread","name": "root","message": "Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2"}
 ```
 **Auto Mode Example 2**
 ```bash
 python3 restore.py '/AUTO' 'eu-west-2' 'test-davinder-s3' 'SSM/' 'auto'
-{"@timestamp": "2021-06-26 16:00:13,051","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
-{"@timestamp": "2021-06-26 16:00:14,186","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
-{"@timestamp": "2021-06-26 16:00:14,186","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
-**************************************************
-Restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /AUTO/Test/ANSIBLE_VAULT_PASSWORD in eu-west-2
-**************************************************
-Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /AUTO/Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2
+{"@timestamp": "2021-06-26 16:55:00,004","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
+{"@timestamp": "2021-06-26 16:55:01,276","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
+{"@timestamp": "2021-06-26 16:55:01,277","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
+{"@timestamp": "2021-06-26 16:55:01,890","level": "INFO","thread": "MainThread","name": "root","message": "Restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /AUTO/Test/ANSIBLE_VAULT_PASSWORD in eu-west-2"}
+{"@timestamp": "2021-06-26 16:55:02,926","level": "INFO","thread": "MainThread","name": "root","message": "Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /AUTO/Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2"}
 ```
 
 **Manual Mode Example 1**
@@ -105,7 +101,7 @@ Enter number: 3
 **Manual Mode Example 2**
 ```bash
 python3 restore.py '/MANUAL' 'eu-central-1' 'test-davinder-s3' 'SSM/' 'manual'
-{"@timestamp": "2021-06-26 16:00:46,759","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
+{"@timestamp": "2021-06-26 16:57:02,788","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
 **************************************************
 Manual Restore Mode is ON
 **************************************************
@@ -115,13 +111,13 @@ Please select:
 3) SSM/SSM_BACKUP_2021-06-25.json
 4) SSM/SSM_BACKUP_2021-06-26.json
 Enter number: 4
-{"@timestamp": "2021-06-26 16:00:50,248","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
+{"@timestamp": "2021-06-26 16:57:08,977","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
 **************************************************
-Restoring ssm key-pair /Test/ANSIBLE_VAULT_PASSWORD at /MANUAL/Test/ANSIBLE_VAULT_PASSWORD in eu-west-2
-Do you want to restore above mentioned key-pair?: yes/no
-no
+List of key-pairs in selected backup file
 **************************************************
-Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /MANUAL/Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2
-Do you want to restore above mentioned key-pair?: yes/no
-yes
+Please select:
+1) {"Name": "/Test/ANSIBLE_VAULT_PASSWORD", "Type": "SecureString", "Value": "xxxxxxxxxxx", "DataType": "text"}
+2) {"Name": "/Test1/ANSIBLE_VAULT_PASSWORD", "Type": "SecureString", "Value": "yyyyyyyyyyy", "DataType": "text"}
+Enter number: 2
+{"@timestamp": "2021-06-26 16:57:16,354","level": "INFO","thread": "MainThread","name": "root","message": "Restoring ssm key-pair /Test1/ANSIBLE_VAULT_PASSWORD at /MANUAL/Test1/ANSIBLE_VAULT_PASSWORD in eu-west-2"}
 ```

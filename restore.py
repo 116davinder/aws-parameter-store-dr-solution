@@ -29,7 +29,7 @@ class SSMRestore:
         self.temp_file = tempfile.NamedTemporaryFile(
             prefix="ssm_restore_", suffix=".json"
         )
-        self.restore_mode = restore_mode
+        self.restore_mode = restore_mode.lower()
         self.s3_client = boto3.client("s3")
 
     def _s3_find_backups(self):
@@ -67,33 +67,6 @@ class SSMRestore:
             logging.error(e)
             sys.exit(1)
 
-    def _read_backup_temp_file(self):
-        try:
-            with open(self.temp_file.name, "r") as f:
-                _line = f.readlines()
-                if len(_line) > 0:
-                    for _item in _line:
-                        _item = json.loads(_item)
-                        _path = self.ssm_path_prefix + _item['Name']
-                        print("*" * 50)
-                        print(f"Restoring ssm key-pair {_item['Name']} at {_path} in {self.ssm_region}")
-                        if self.restore_mode != "auto":
-                            print("Do you want to restore above mentioned key-pair?: yes/no")
-                            user_selection = input()
-                            if user_selection.lower() == "yes":
-                                self._write_to_ssm(_path, _item["Value"], _item["Type"], _item["DataType"])
-                            else:
-                                pass
-                        else:
-                            self._write_to_ssm(_path, _item["Value"], _item["Type"], _item["DataType"])
-                            pass
-                else:
-                    logging.warning("Nothing has found in selected backup file")
-
-        except ClientError as e:
-            logging.error(e)
-            sys.exit(1)
-
     def _write_to_ssm(self, _path, _value, _type, _data_type):
         try:
             self.ssm_client.put_parameter(
@@ -109,6 +82,36 @@ class SSMRestore:
             logging.error(e)
             sys.exit(1)
 
+    def _read_backup_temp_file(self):
+        with open(self.temp_file.name, "r") as f:
+            _lines = f.readlines()
+            if len(_lines) > 0:
+                if self.restore_mode != 'auto':
+                    print("*" * 50)
+                    print("List of key-pairs in selected backup file")
+                    print("*" * 50)
+                    restore_key = common.letUserPickBackupFile(_lines)
+                    if restore_key is not None:
+                        restore_key = json.loads(restore_key)
+                        _path = self.ssm_path_prefix + restore_key['Name']
+                        logging.info(f"Restoring ssm key-pair {restore_key['Name']} at {_path} in {self.ssm_region}")
+                        self._write_to_ssm(
+                            self.ssm_path_prefix + restore_key['Name'],
+                            restore_key["Value"],
+                            restore_key["Type"],
+                            restore_key["DataType"]
+                        )
+                    else:
+                        logging.error("unknown selection")
+                else:
+                    for _item in _lines:
+                        _item = json.loads(_item)
+                        _path = self.ssm_path_prefix + _item['Name']
+                        logging.info(f"Restoring ssm key-pair {_item['Name']} at {_path} in {self.ssm_region}")
+                        self._write_to_ssm(_path, _item["Value"], _item["Type"], _item["DataType"])
+            else:
+                logging.warning("Nothing has found in selected backup file")
+
     def restore(self):
         _list = self._s3_find_backups()
         if len(_list) == 0:
@@ -117,7 +120,7 @@ class SSMRestore:
             )
             sys.exit(1)
 
-        if self.restore_mode.lower() == "auto":
+        if self.restore_mode == "auto":
             logging.info("Auto Restore Mode is ON")
             restore_file = _list[-1]
         else:
@@ -126,9 +129,12 @@ class SSMRestore:
             print("*" * 50)
             restore_file = common.letUserPickBackupFile(_list)
 
-        logging.info(f"Selected Backup File: {restore_file}")
-        self._s3_download_selected_backup(restore_file)
-        self._read_backup_temp_file()
+        if restore_file is not None:
+            logging.info(f"Selected Backup File: {restore_file}")
+            self._s3_download_selected_backup(restore_file)
+            self._read_backup_temp_file()
+        else:
+            logging.error("unknown selection")
         self.temp_file.close()
         logging.debug(f"cleaned up temp files")
 

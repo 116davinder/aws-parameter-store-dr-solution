@@ -11,7 +11,7 @@ def setLoggingFormat(level=20):
 def letUserPickBackupFile(options):
     print("Please select:")
     for idx, element in enumerate(options):
-        print("{}) {}".format(idx + 1, element))
+        print("{}) {}".format(idx + 1, element.strip()))
     i = input("Enter number: ")
     try:
         if 0 < int(i) <= len(options):
