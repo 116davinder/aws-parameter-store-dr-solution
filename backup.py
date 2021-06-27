@@ -10,8 +10,8 @@ import sys
 import botocore.config
 from botocore.exceptions import ClientError
 import json
-from datetime import date
 import tempfile
+import pendulum
 
 
 class SSMBackup:
@@ -30,7 +30,7 @@ class SSMBackup:
         self.temp_file = tempfile.NamedTemporaryFile(
             prefix="ssm_backup_", suffix=".json"
         )
-        self.backup_file = self.s3_bucket_prefix + "SSM_BACKUP_" + date.today().strftime("%Y-%m-%d") + ".json"
+        self.backup_file = self.s3_bucket_prefix + "SSM_BACKUP_" + pendulum.today().strftime("%Y-%m-%d") + ".json"
 
     def _get_ssm_values(self):
         _results = []
