@@ -63,7 +63,7 @@ python3 restore.py --sp <ssm restore prefix>  --region us-east-1 --bucket <bucke
 ### Examples
 **Auto Mode Example 1**
 ```bash
-python3 restore.py --sp ""--region us-east-1 --bucket test-davinder-s3 --bucket-prefix SSM/ --restore-mode auto
+python3 restore.py --sp "" --region us-east-1 --bucket test-davinder-s3 --bucket-prefix SSM/ --restore-mode auto
 {"@timestamp": "2021-06-26 16:55:00,004","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
 {"@timestamp": "2021-06-26 16:55:01,276","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
 {"@timestamp": "2021-06-26 16:55:01,277","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
