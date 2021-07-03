@@ -11,6 +11,7 @@ from botocore.config import Config
 from botocore.exceptions import ClientError
 import json
 import tempfile
+import argparse
 
 
 class SSMRestore:
@@ -141,16 +142,56 @@ class SSMRestore:
 
 if __name__ == "__main__":
     common.setLoggingFormat()
-    if len(sys.argv) != 6:
-        logging.error(
-            "Usage: python3 restore.py 'ssm-path' 'aws-ssm-region' 's3-bucket' 's3-bucket-prefix' 'restore-mode'"
-        )
-    else:
-        restore = SSMRestore(
-            ssm_path_prefix=sys.argv[1],
-            ssm_region=sys.argv[2],
-            bucket=sys.argv[3],
-            bucket_prefix=sys.argv[4],
-            restore_mode=sys.argv[5]
-        )
-        restore.restore()
+
+    parser = argparse.ArgumentParser(description='AWS Parameter Store Restore Script Options')
+    parser.add_argument(
+        "--ssm-restore-path-prefix",
+        "--sp",
+        nargs=1,
+        required=True,
+        type=str,
+        help="Provide ssm path with space separated"
+             " Example: --ssm-restore-path-prefix /AUTO"
+    )
+    parser.add_argument(
+        "--region",
+        nargs=1,
+        required=True,
+        type=str,
+        help="Provide ssm region to which backup should be restored."
+             " Example: --region us-east-1"
+    )
+    parser.add_argument(
+        "--bucket",
+        nargs=1,
+        required=True,
+        type=str,
+        help="Provide name of the aws s3 bucket where backup is stored."
+             " Example: --bucket test-davinder-s3"
+    )
+    parser.add_argument(
+        "--bucket-prefix",
+        nargs=1,
+        type=str,
+        required=True,
+        help="(optional) Provide bucket prefix of the aws s3 bucket where backup is stored."
+             " Example: --bucket-prefix SSM/"
+    )
+    parser.add_argument(
+        "--restore-mode",
+        nargs=1,
+        type=str,
+        required=True,
+        help="Provide restore method."
+             " Example: --restore-mode auto/manual"
+    )
+    args = parser.parse_args()
+
+    restore = SSMRestore(
+        ssm_path_prefix=args.ssm_restore_path_prefix[0].strip(),
+        ssm_region=args.region[0].strip(),
+        bucket=args.bucket[0].strip(),
+        bucket_prefix=args.bucket_prefix[0].strip(),
+        restore_mode=args.restore_mode[0].strip()
+    )
+    restore.restore()

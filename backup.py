@@ -12,6 +12,7 @@ from botocore.exceptions import ClientError
 import json
 import tempfile
 import pendulum
+import argparse
 
 
 class SSMBackup:
@@ -25,8 +26,7 @@ class SSMBackup:
         )
         self.s3_bucket = bucket
         self.s3_bucket_prefix = bucket_prefix
-        self.ssm_paths = ssm_paths.split(",")
-
+        self.ssm_paths = ssm_paths
         self.temp_file = tempfile.NamedTemporaryFile(
             prefix="ssm_backup_", suffix=".json"
         )
@@ -89,16 +89,46 @@ class SSMBackup:
 
 if __name__ == "__main__":
     common.setLoggingFormat()
-    if len(sys.argv) != 5:
-        logging.error(
-            "Usage: python3 backup.py 'ssm-paths' 'aws-region' 's3-bucket' 's3-bucket-prefix'"
-        )
-        sys.exit(1)
-    else:
-        backup = SSMBackup(
-            ssm_paths=sys.argv[1],
-            ssm_region=sys.argv[2],
-            bucket=sys.argv[3],
-            bucket_prefix=sys.argv[4],
-        )
-        backup.backup()
+
+    parser = argparse.ArgumentParser(description='AWS Parameter Store Backup Script Options')
+    parser.add_argument(
+        "--ssm-paths",
+        nargs='+',
+        required=True,
+        type=str,
+        help="Provide ssm path with space separated"
+             " Example: --ssm-paths /Test/Path /Test1/Path"
+    )
+    parser.add_argument(
+        "--region",
+        nargs=1,
+        required=True,
+        type=str,
+        help="Provide ssm region from where backup should be taken."
+             " Example: --region us-east-1"
+    )
+    parser.add_argument(
+        "--bucket",
+        nargs=1,
+        required=True,
+        type=str,
+        help="Provide name of the aws s3 bucket."
+             " Example: --bucket test-davinder-s3"
+    )
+    parser.add_argument(
+        "--bucket-prefix",
+        nargs=1,
+        type=str,
+        required=True,
+        help="Provide bucket prefix of the aws s3 bucket."
+             " Example: --bucket-prefix SSM/"
+    )
+    args = parser.parse_args()
+
+    backup = SSMBackup(
+        ssm_paths=args.ssm_paths,
+        ssm_region=args.region[0].strip(),
+        bucket=args.bucket[0].strip(),
+        bucket_prefix=args.bucket_prefix[0].strip(),
+    )
+    backup.backup()

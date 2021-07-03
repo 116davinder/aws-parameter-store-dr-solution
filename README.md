@@ -17,19 +17,18 @@ and Once upload to S3 is complete it will be auto cleaned.
 
 **Usage**
 ```bash
-python3 backup.py 'ssm-paths' 'ssm-aws-region' 's3-bucket' 's3-bucket-prefix'
+python3 backup.py --ssm-paths <path are space separated> --region us-east-1 --bucket <bucket> --bucket-prefix <prefix>
 ```
 
 ### Examples
 
 **Example**
 ```bash
-python3 backup.py '/Test/ANSIBLE_VAULT_PASSWORD,/Test1/ANSIBLE_VAULT_PASSWORD' 'us-east-1' 'test-davinder-s3' 'SSM/'
+python3 backup.py --ssm-paths /Test/ANSIBLE_VAULT_PASSWORD /Test1/ANSIBLE_VAULT_PASSWORD --region us-east-1 --bucket test-davinder-s3 --bucket-prefix SSM/
 ```
 
 **Output**
 ```bash
-python3 backup.py '/Test/ANSIBLE_VAULT_PASSWORD,/Test1/ANSIBLE_VAULT_PASSWORD' 'us-east-1' 'test-davinder-s3' 'SSM/'
 {"@timestamp": "2021-06-24 10:54:54,768","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
 {"@timestamp": "2021-06-24 10:54:54,787","level": "INFO","thread": "MainThread","name": "root","message": "pulling data from /Test/ANSIBLE_VAULT_PASSWORD"}
 {"@timestamp": "2021-06-24 10:54:56,157","level": "INFO","thread": "MainThread","name": "root","message": "pulling data from /Test1/ANSIBLE_VAULT_PASSWORD"}
@@ -58,13 +57,13 @@ It will ask user to select which key-pair to restore from selected backup on giv
 
 **Usage**
 ```bash
-python3 restore.py 'ssm-restore-path' 'ssm-aws-region' 's3-bucket' 's3-bucket-prefix' 'restore-mode'
+python3 restore.py --sp <ssm restore prefix>  --region us-east-1 --bucket <bucket> --bucket-prefix <prefix> --restore-mode auto/manual
 ```
 
 ### Examples
 **Auto Mode Example 1**
 ```bash
-python3 restore.py '' 'eu-west-2' 'test-davinder-s3' 'SSM/' 'auto'
+python3 restore.py --sp ""--region us-east-1 --bucket test-davinder-s3 --bucket-prefix SSM/ --restore-mode auto
 {"@timestamp": "2021-06-26 16:55:00,004","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
 {"@timestamp": "2021-06-26 16:55:01,276","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
 {"@timestamp": "2021-06-26 16:55:01,277","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
@@ -73,7 +72,7 @@ python3 restore.py '' 'eu-west-2' 'test-davinder-s3' 'SSM/' 'auto'
 ```
 **Auto Mode Example 2**
 ```bash
-python3 restore.py '/AUTO' 'eu-west-2' 'test-davinder-s3' 'SSM/' 'auto'
+python3 restore.py --ssm-restore-path-prefix /AUTO --region us-east-1 --bucket test-davinder-s3 --bucket-prefix SSM/ --restore-mode auto
 {"@timestamp": "2021-06-26 16:55:00,004","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
 {"@timestamp": "2021-06-26 16:55:01,276","level": "INFO","thread": "MainThread","name": "root","message": "Auto Restore Mode is ON"}
 {"@timestamp": "2021-06-26 16:55:01,277","level": "INFO","thread": "MainThread","name": "root","message": "Selected Backup File: SSM/SSM_BACKUP_2021-06-26.json"}
@@ -83,7 +82,7 @@ python3 restore.py '/AUTO' 'eu-west-2' 'test-davinder-s3' 'SSM/' 'auto'
 
 **Manual Mode Example 1**
 ```bash
-python3 restore.py '/MANUAL' 'eu-central-1' 'test-davinder-s3' 'SSM/' 'manual'
+python3 restore.py --sp /MANUAL  --region us-east-1 --bucket test-davinder-s3 --bucket-prefix SSM/ --restore-mode manual
 {"@timestamp": "2021-06-26 16:00:34,329","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
 **************************************************
 Manual Restore Mode is ON
@@ -100,7 +99,7 @@ Enter number: 3
 
 **Manual Mode Example 2**
 ```bash
-python3 restore.py '/MANUAL' 'eu-central-1' 'test-davinder-s3' 'SSM/' 'manual'
+python3 restore.py --ssm-restore-path-prefix /MANUAL  --region us-east-1 --bucket test-davinder-s3 --bucket-prefix SSM/ --restore-mode manual
 {"@timestamp": "2021-06-26 16:57:02,788","level": "INFO","thread": "MainThread","name": "botocore.credentials","message": "Found credentials in environment variables."}
 **************************************************
 Manual Restore Mode is ON
