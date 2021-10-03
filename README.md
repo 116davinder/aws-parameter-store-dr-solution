@@ -11,7 +11,7 @@ will be stored only.
 6. This Application won't take backup of SSM Parameter `description` and `tags`  currently.
 
 ## Backup Solution
-* It will take backup of given comma separated SSM Paths only not there sub/child paths.
+* It will take backup of given space separated SSM Paths only not there sub/child paths.
 * It will also create a temporary file to store all key-value pairs, example `/tmp/ssm_backup_xxxx.json`
 and Once upload to S3 is complete it will be auto cleaned.
 
